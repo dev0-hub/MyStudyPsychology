@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Psychological Statistics · AI Practice + Workbench</title>
+<style>
+  :root{
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc;
+    --accent:#2563eb; --accent-dark:#1d4ed8; --accent-soft:#eff6ff;
+    --ok:#059669; --ok-soft:#ecfdf5; --bad:#dc2626; --bad-soft:#fef2f2;
+    --wb:#7c3aed; --wb-soft:#f5f3ff;
+    --ans-bg:#e0f2fe; --ans-border:#bae6fd; --ans-text:#0369a1;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:#fff;color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px;}
+
+  header{border-bottom:1px solid var(--line);padding:26px 0 20px;background:#fff;}
+  .brand{display:flex;align-items:center;gap:14px;}
+  .logo{width:46px;height:46px;flex:0 0 46px;border-radius:12px;background:var(--accent);
+    color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;}
+  header h1{font-size:22px;margin:0;letter-spacing:-.02em;font-weight:700;}
+  header p{margin:2px 0 0;font-size:13.5px;color:var(--muted);}
+
+  nav.tabs{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 0;}
+  .tabrow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+  .tabrow::-webkit-scrollbar{display:none;}
+  .tab{white-space:nowrap;padding:8px 15px;border-radius:999px;border:1px solid var(--line);
+    background:#fff;color:var(--muted);font-size:13.5px;font-weight:600;
+    font-family:inherit;cursor:pointer;transition:.15s;}
+  .tab:hover{border-color:#cbd5e1;color:var(--ink);}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+  main{padding:26px 0 80px;}
+  .panel{display:none;animation:fade .22s ease;}
+  .panel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;}
+  .card h2{margin:0 0 4px;font-size:17px;letter-spacing:-.01em;}
+  .card h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+    margin:22px 0 8px;font-weight:700;}
+  .card h3:first-child{margin-top:0;}
+  .hint{font-size:13.5px;color:var(--muted);margin:0 0 14px;}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+    font-size:12.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+
+  input[type=text],input[type=number],select{
+    width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;color:var(--ink);
+    background:#fff;outline:none;transition:.15s;resize:vertical;}
+  select{font-family:inherit;cursor:pointer;}
+  input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+  label.fld{display:block;font-size:12.5px;font-weight:700;color:var(--muted);
+    margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em;}
+
+  .btns{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px;}
+  button{font-family:inherit;font-size:14px;font-weight:600;padding:10px 18px;
+    border-radius:10px;cursor:pointer;transition:.15s;}
+  button.primary{background:var(--accent);color:#fff;border:1px solid var(--accent);}
+  button.primary:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+  button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line);}
+  button.ghost:hover{border-color:#cbd5e1;background:var(--soft);}
+  button.ok{background:var(--ok);color:#fff;border:1px solid var(--ok);}
+  button.ok:hover{background:#047857;}
+  button.wb{background:var(--wb);color:#fff;border:1px solid var(--wb);}
+  button.wb:hover{background:#6d28d9;}
+  button:disabled{opacity:.55;cursor:not-allowed;}
+
+  .out{margin-top:6px;}
+  .out:empty{display:none;}
+  .tablewrap{overflow-x:auto;margin:10px 0;}
+  table.tbl{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}
+  table.tbl th{background:var(--soft);color:var(--muted);font-size:11.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:9px 11px;
+    border:1px solid var(--line);white-space:nowrap;}
+  table.tbl td{padding:8px 11px;border:1px solid var(--line);white-space:nowrap;}
+  table.tbl tr:hover td{background:#fcfdff;}
+
+  .step{background:var(--soft);border-left:3px solid var(--accent);border-radius:0 9px 9px 0;
+    padding:11px 15px;margin:10px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:13.5px;white-space:pre-wrap;overflow-x:auto;line-height:1.75;}
+  .answer{background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:10px;
+    padding:12px 16px;margin:12px 0;font-weight:700;font-size:16px;color:var(--accent-dark);}
+  .answer span{font-weight:500;color:var(--muted);font-size:13px;display:block;margin-top:2px;}
+
+  .note{background:#fff;border:1px dashed var(--line);border-radius:10px;
+    padding:12px 16px;font-size:13px;color:var(--muted);margin-top:16px;}
+  .note b{color:var(--ink);}
+  .warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;
+    padding:12px 16px;font-size:13.5px;}
+
+  /* ---- Practice settings ---- */
+  .settings{background:var(--soft);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin-bottom:18px;}
+  .settings summary{cursor:pointer;font-weight:700;font-size:13.5px;color:var(--ink);
+    list-style:none;display:flex;align-items:center;gap:8px;}
+  .settings summary::-webkit-details-marker{display:none;}
+  .settings summary::before{content:"⚙";font-size:15px;}
+  .settings[open] summary{margin-bottom:12px;}
+  .settings .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:640px){.settings .row{grid-template-columns:1fr;}}
+
+  .genbar{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;}
+  @media(max-width:720px){.genbar{grid-template-columns:1fr;}}
+
+  .qbox{border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0;
+    background:linear-gradient(180deg,#ffffff,#fbfdff);}
+  .qbox .qtag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+    padding:3px 9px;border-radius:6px;margin-bottom:10px;}
+  .qbox .qtext{font-size:15.5px;font-weight:600;margin:0 0 12px;line-height:1.5;}
+  .qbox .qdata{font-family:ui-monospace,monospace;font-size:13.5px;background:#fff;
+    border:1px solid var(--line);border-radius:9px;padding:12px 14px;white-space:pre;
+    overflow-x:auto;line-height:1.8;}
+
+  /* ---- Calculator Workbench ---- */
+  .workbench{border:1.5px solid var(--wb);border-radius:16px;margin:18px 0;
+    background:linear-gradient(180deg,#ffffff,#faf8ff);overflow:hidden;}
+  .wb-head{display:flex;justify-content:space-between;align-items:center;
+    padding:13px 18px;background:var(--wb-soft);border-bottom:1px solid #ddd6fe;
+    gap:10px;flex-wrap:wrap;}
+  .wb-title{font-size:14.5px;font-weight:800;color:var(--wb);
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .wb-sub{font-size:12px;font-weight:500;color:var(--muted);}
+  .wb-toggle{padding:6px 13px;font-size:12.5px;font-weight:700;
+    background:#fff;border:1px solid #ddd6fe;color:var(--wb);border-radius:8px;}
+  .wb-toggle:hover{background:var(--wb-soft);}
+  .wb-body{padding:18px;}
+  .wb-body.hidden{display:none;}
+  .wb-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px;
+    padding-top:14px;border-top:1px dashed #ddd6fe;}
+  #wb-result:empty{display:none;}
+  #wb-result{margin-top:16px;}
+
+  /* ---- Table Input ---- */
+  .wb-label{font-size:12px;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+  table.input-tbl{width:100%;border-collapse:collapse;font-size:14px;
+    background:#fff;border-radius:10px;overflow:hidden;
+    border:1px solid var(--line);}
+  table.input-tbl th{background:var(--soft);padding:9px 10px;border:1px solid var(--line);
+    font-size:11.5px;font-weight:700;text-transform:uppercase;color:var(--muted);
+    letter-spacing:.05em;text-align:left;}
+  table.input-tbl td{border:1px solid var(--line);padding:0;background:#fff;}
+  table.input-tbl input{width:100%;border:none;padding:9px 11px;font-size:14px;
+    font-family:ui-monospace,monospace;background:transparent;outline:none;
+    border-radius:0;box-shadow:none !important;}
+  table.input-tbl input:focus{background:var(--accent-soft);}
+  table.input-tbl td.cell-del{width:38px;text-align:center;color:#cbd5e1;
+    cursor:pointer;user-select:none;font-weight:700;background:var(--soft);}
+  table.input-tbl td.cell-del:hover{color:var(--bad);background:var(--bad-soft);}
+  .add-row{margin-top:8px;padding:7px 14px;font-size:12.5px;
+    border:1px dashed #cbd5e1;background:#fff;color:var(--muted);
+    border-radius:8px;cursor:pointer;font-weight:700;}
+  .add-row:hover{border-color:var(--wb);color:var(--wb);background:var(--wb-soft);}
+
+  .wb-extra{margin-top:16px;}
+  .quartile-checks{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;}
+  .quartile-checks label{display:flex;align-items:center;gap:7px;cursor:pointer;
+    font-size:14px;font-weight:600;color:var(--ink);
+    padding:8px 14px;border:1px solid var(--line);border-radius:9px;background:#fff;}
+  .quartile-checks label:hover{border-color:var(--wb);background:var(--wb-soft);}
+  .quartile-checks input[type=checkbox]{width:16px;height:16px;accent-color:var(--wb);cursor:pointer;}
+
+  .phi-input-matrix{display:grid;grid-template-columns:auto 1fr 1fr;gap:0;
+    max-width:520px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+  .phi-input-matrix .hcell{background:var(--soft);padding:10px 12px;font-size:11.5px;
+    font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+    border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .phi-input-matrix .rcell{background:var(--soft);padding:10px 12px;font-size:11.5px;
+    font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+    border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .phi-input-matrix .ccell{padding:0;border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);}
+  .phi-input-matrix .ccell:last-child{border-right:none;}
+  .phi-input-matrix .ccell input{width:100%;border:none;padding:12px 10px;
+    font-size:15px;font-family:ui-monospace,monospace;text-align:center;
+    background:transparent;outline:none;box-shadow:none !important;}
+  .phi-input-matrix .ccell input:focus{background:var(--accent-soft);}
+  .phi-input-matrix .corner{border-right:1px solid var(--line);border-bottom:1px solid var(--line);}
+
+  /* ---- Specific output formatting ---- */
+  .centile-table-title{font-size:12px;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .centile-step{font-family:ui-monospace,monospace;font-size:13.5px;color:#333;
+    line-height:1.8;background:none;border:none;padding:0;white-space:pre-wrap;margin-top:4px;}
+  .centile-answer{background:var(--ans-bg);border:1px solid var(--ans-border);
+    color:var(--ans-text);font-weight:700;font-size:15px;padding:10px 14px;
+    border-radius:8px;margin-top:8px;display:inline-block;min-width:160px;}
+  .centile-heading{font-size:14px;font-weight:700;color:#1e293b;margin:18px 0 4px;
+    border-bottom:1px solid var(--line);padding-bottom:4px;}
+  .n-tag{font-weight:bold;color:#2563eb;font-size:14px;margin-top:16px;}
+
+  /* ---- Answer fields ---- */
+  .ansgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:12px;margin:16px 0;}
+  .ansgrid label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);
+    margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;
+    display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .ansgrid .mini{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;
+    background:var(--wb-soft);color:var(--wb);border:1px solid #ddd6fe;
+    cursor:pointer;text-transform:none;letter-spacing:0;}
+  .ansgrid .mini:hover{background:#ddd6fe;}
+
+  .feedback{border-radius:12px;padding:14px 18px;margin:14px 0;font-size:14px;
+    border:1px solid;display:none;}
+  .feedback.show{display:block;animation:fade .2s ease;}
+  .feedback.good{background:var(--ok-soft);border-color:#a7f3d0;color:#065f46;}
+  .feedback.bad{background:var(--bad-soft);border-color:#fecaca;color:#991b1b;}
+  .feedback .fb-title{font-weight:800;font-size:14.5px;margin-bottom:6px;}
+  .feedback .fb-row{font-family:ui-monospace,monospace;font-size:13px;
+    display:flex;gap:10px;padding:2px 0;}
+  .feedback .fb-row .lbl{min-width:90px;font-weight:600;}
+  .feedback .fb-row .you{text-decoration:line-through;opacity:.65;}
+  .feedback .fb-row .cor{font-weight:700;}
+
+  .scorebar{display:flex;gap:20px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);
+    padding:12px 16px;background:var(--soft);border:1px solid var(--line);
+    border-radius:10px;margin-top:14px;}
+  .scorebar b{color:var(--ink);font-size:15px;}
+  .scorebar .dot{display:inline-block;width:8px;height:8px;border-radius:50%;
+    background:var(--accent);margin-right:6px;}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:640px){.two{grid-template-columns:1fr;}}
+  .aibadge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;
+    color:var(--accent);background:var(--accent-soft);border:1px solid #bfdbfe;
+    padding:3px 10px;border-radius:999px;letter-spacing:.03em;}
+  .aibadge.local{color:var(--muted);background:var(--soft);border-color:var(--line);}
+  .fillnote{font-size:12.5px;color:var(--wb);background:var(--wb-soft);
+    border:1px solid #ddd6fe;border-radius:9px;padding:9px 13px;margin-top:12px;
+    display:flex;align-items:center;gap:8px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">Ψ</div>
+      <div>
+        <h1>Psychological Statistics</h1>
+        <p>AI practice · Table Workbench · Quartiles · Step‑by‑step solutions</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <div class="tabrow">
+      <button class="tab active" data-target="p-practice">🎯 Practice with AI</button>
+      <button class="tab" data-target="p-avg">① Mean · Mode · Median</button>
+      <button class="tab" data-target="p-cent">② Centiles</button>
+      <button class="tab" data-target="p-quart">③ Quartiles</button>
+      <button class="tab" data-target="p-sd">④ SD &amp; z‑score</button>
+      <button class="tab" data-target="p-pearson">⑤ Pearson r</button>
+      <button class="tab" data-target="p-spear">⑥ Spearman Rank</button>
+      <button class="tab" data-target="p-phi">⑦ Phi Coefficient</button>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ============ PRACTICE MODE ============ -->
+  <section id="p-practice" class="panel active">
+    <div class="card">
+      <h2>Practice with AI</h2>
+      <p class="hint">
+        AI generates a question → <b>type numbers straight into the table</b> →
+        compute → check.
+      </p>
+
+      <details class="settings">
+        <summary>Connect a real AI (optional)</summary>
+        <p class="hint" style="margin:0 0 12px;">
+          Built‑in generator works offline. Paste an OpenAI key for real AI questions
+          (kept only in your browser).
+        </p>
+        <div class="row">
+          <div><label class="fld">API Key</label>
+            <input type="text" id="ai-key" placeholder="sk-..."></div>
+          <div><label class="fld">Model</label>
+            <input type="text" id="ai-model" value="gpt-4o-mini"></div>
+        </div>
+        <div class="btns">
+          <button class="ghost" onclick="saveKey()">Save Key</button>
+          <button class="ghost" onclick="clearKey()">Remove Key</button>
+        </div>
+        <div id="key-status" style="margin-top:10px;font-size:13px;color:var(--muted);"></div>
+      </details>
+
+      <div class="genbar">
+        <div>
+          <label class="fld">Topic</label>
+          <select id="gen-topic">
+            <option value="mmm">Mean · Mode · Median (grouped)</option>
+            <option value="centile">Centile (C<sub>p</sub>)</option>
+            <option value="quartile">Quartile (Q₁, Q₂, Q₃)</option>
+            <option value="sd">Standard Deviation &amp; z‑score</option>
+            <option value="pearson">Pearson r</option>
+            <option value="spearman">Spearman Rank</option>
+            <option value="phi">Phi Coefficient</option>
+          </select>
+        </div>
+        <div>
+          <label class="fld">Difficulty</label>
+          <select id="gen-diff">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <button class="primary" id="gen-btn" onclick="generateQuestion()">✨ Generate Question</button>
+      </div>
+
+      <div id="q-empty" class="note">
+        Press <b>✨ Generate Question</b> to begin. The Workbench below the question
+        lets you type numbers directly into a table.
+      </div>
+
+      <div id="q-area" style="display:none;">
+        <div class="qbox">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <span class="qtag" id="q-topic-tag">TOPIC</span>
+            <span class="aibadge" id="q-source">🎲 Built‑in generator</span>
+          </div>
+          <p class="qtext" id="q-text"></p>
+          <div class="qdata" id="q-data"></div>
+        </div>
+
+        <div class="workbench">
+          <div class="wb-head">
+            <div class="wb-title">🧮 Calculator Workbench
+              <span class="wb-sub">— just type numbers into the table</span>
+            </div>
+            <button class="wb-toggle" id="wb-toggle" onclick="toggleWB()">Hide</button>
+          </div>
+          <div class="wb-body" id="wb-body">
+            <div id="wb-inputs"></div>
+            <div class="wb-actions">
+              <button class="wb" onclick="wbCompute()">🧮 Compute</button>
+              <button class="ghost" onclick="wbReset()">↺ Reset data</button>
+              <button class="ghost" onclick="wbClearResult()">Clear result</button>
+            </div>
+            <div id="wb-result"></div>
+          </div>
+        </div>
+
+        <h3>Your answers</h3>
+        <p class="hint" style="margin-top:-4px;">
+          Use the Workbench above, then <b>↺ Fill from Workbench</b> — or type your
+          own values if you want to practice.
+        </p>
+        <div class="ansgrid" id="ans-fields"></div>
+
+        <div class="btns">
+          <button class="ok" onclick="checkAnswers()">✓ Check My Answer</button>
+          <button class="ghost" onclick="revealSolution()">📖 Show Full Solution</button>
+          <button class="ghost" onclick="generateQuestion()">🎲 New Question</button>
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+        <div id="solution"></div>
+
+        <div class="scorebar">
+          <div><span class="dot"></span>Attempted: <b id="sc-att">0</b></div>
+          <div><span class="dot" style="background:var(--ok)"></span>Correct: <b id="sc-ok">0</b></div>
+          <div><span class="dot" style="background:var(--bad)"></span>Wrong: <b id="sc-bad">0</b></div>
+          <div>Accuracy: <b id="sc-pct">—</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STANDALONE TABS ============ -->
+  <section id="p-avg" class="panel">
+    <div class="card">
+      <h2>Mean · Mode · Median</h2>
+      <p class="hint">Type the class limits and frequencies directly into the table.</p>
+      <div id="avg-input"></div>
+      <div class="btns">
+        <button class="primary" onclick="runAverages()">Compute</button>
+        <button class="ghost" onclick="resetInput('avg')">Reset</button>
+        <button class="ghost" onclick="clearIn('avg-out')">Clear Result</button>
+      </div>
+      <div id="avg-out" class="out"></div>
+    </div>
+  </section>
+
+  <section id="p-cent" class="panel">
+    <div class="card">
+      <h2>Centiles (C<sub>p</sub>)</h2>
+      <p class="hint">Type the class limits and frequencies, then the centile values.</p>
+      <div id="cent-input"></div>
+      <div style="margin-top:16px;max-width:400px;">
+        <label class="fld">Centiles (comma separated)</label>
+        <input type="text" id="cent-list" value="40, 85">
+      </div>
+      <div class="btns">
+        <button class="primary" onclick="runCentiles()">Compute</button>
+        <button class="ghost" onclick="resetInput('cent')">Reset</button>
+        <button class="ghost" onclick="clearIn('cent-out')">Clear Result</button>
+      </div>
+      <div id="cent-out" class="out"></div>
+    </div>
+  </section>
+
+  <section id="p-quart" class="panel">
+    <div class="card">
+      <h2>Quartiles (Q₁, Q₂, Q₃) &amp; Quartile Deviation</h2>
+      <p class="hint">Type the class limits and frequencies, then pick which quartiles to compute.</p>
+      <div id="quart-input"></div>
+      <div class="wb-extra">
+        <label class="fld">Quartiles to compute</label>
+        <div class="quartile-checks">
+          <label><input type="checkbox" class="q-check" value="1" checked> Q₁</label>
+          <label><input type="checkbox" class="q-check" value="2"> Q₂</label>
+          <label><input type="checkbox" class="q-check" value="3" checked> Q₃</label>
+        </div>
+        <div class="hint" style="margin-top:6px;">
+          <b>Note:</b> Q (Quartile Deviation) is automatically calculated when both Q₁ and Q₃ are selected.
+        </div>
+      </div>
+      <div class="btns">
+        <button class="primary" onclick="runQuartiles()">Compute</button>
+        <button class="ghost" onclick="resetInput('quart')">Reset</button>
+        <button class="ghost" onclick="clearIn('quart-out')">Clear Result</button>
+      </div>
+      <div id="quart-out" class="out"></div>
+    </div>
+  </section>
+
+  <section id="p-sd" class="panel">
+    <div class="card">
+      <h2>Standard Deviation &amp; z‑score</h2>
+      <p class="hint">Type the class limits and frequencies, plus the score(s) to convert.</p>
+      <div id="sd-input"></div>
+      <div style="margin-top:16px;max-width:400px;">
+        <label class="fld">Score(s) to convert to z (comma separated)</label>
+        <input type="text" id="sd-scores" value="38">
+      </div>
+      <div class="btns">
+        <button class="primary" onclick="runSD()">Compute</button>
+        <button class="ghost" onclick="resetInput('sd')">Reset</button>
+        <button class="ghost" onclick="clearIn('sd-out')">Clear Result</button>
+      </div>
+      <div id="sd-out" class="out"></div>
+    </div>
+  </section>
+
+  <section id="p-pearson" class="panel">
+    <div class="card">
+      <h2>Pearson Correlation</h2>
+      <p class="hint">Type paired scores into the X and Y columns.</p>
+      <div id="pear-input"></div>
+      <div class="btns">
+        <button class="primary" onclick="runPearson()">Compute r</button>
+        <button class="ghost" onclick="resetInput('pear')">Reset</button>
+        <button class="ghost" onclick="clearIn('pear-out')">Clear Result</button>
+      </div>
+      <div id="pear-out" class="out"></div>
+    </div>
+  </section>
+
+  <section id="p-spear" class="panel">
+    <div class="card">
+      <h2>Spearman Rank Correlation</h2>
+      <p class="hint">Type paired scores into the X and Y columns.</p>
+      <div id="spear-input"></div>
+      <div class="btns">
+        <button class="primary" onclick="runSpearman()">Compute Rs</button>
+        <button class="ghost" onclick="resetInput('spear')">Reset</button>
+        <button class="ghost" onclick="clearIn('spear-out')">Clear Result</button>
+      </div>
+      <div id="spear-out" class="out"></div>
+    </div>
+  </section>
+
+  <section id="p-phi" class="panel">
+    <div class="card">
+      <h2>Phi Coefficient</h2>
+      <p class="hint">Type the four cell frequencies directly.</p>
+      <div class="phi-input-matrix" id="phi-input-standalone">
+        <div class="corner"></div>
+        <div class="hcell">Y — Passed</div>
+        <div class="hcell" style="border-right:none;">Y — Failed</div>
+        <div class="rcell">X — Passed</div>
+        <div class="ccell"><input type="number" id="phi-a" value="70"></div>
+        <div class="ccell" style="border-right:none;"><input type="number" id="phi-b" value="20"></div>
+        <div class="rcell" style="border-bottom:none;">X — Failed</div>
+        <div class="ccell" style="border-bottom:none;"><input type="number" id="phi-c" value="15"></div>
+        <div class="ccell" style="border-bottom:none;border-right:none;"><input type="number" id="phi-d" value="60"></div>
+      </div>
+      <div class="btns">
+        <button class="primary" onclick="runPhi()">Compute Φ</button>
+        <button class="ghost" onclick="clearIn('phi-out')">Clear Result</button>
+      </div>
+      <div id="phi-out" class="out"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const num = (n,d=2) => Number.isFinite(n) ? n.toFixed(d) : '—';
+const clean = n => Number.isFinite(n) ? String(Math.round(n*100)/100) : '—';
+
+function table(headers, rows){
+  let h = '<div class="tablewrap"><table class="tbl"><thead><tr>';
+  headers.forEach(x => h += '<th>'+x+'</th>');
+  h += '</tr></thead><tbody>';
+  rows.forEach(r => {
+    h += '<tr>';
+    r.forEach(c => h += '<td>'+c+'</td>');
+    h += '</tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+function parseList(s){
+  return (s||'').split(/[\s,;]+/).filter(x=>x!=='').map(Number).filter(n=>!isNaN(n));
+}
+function rankDesc(arr){
+  const order = arr.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v);
+  const ranks = new Array(arr.length);
+  let i = 0;
+  while (i < order.length){
+    let j = i;
+    while (j+1 < order.length && order[j+1].v === order[i].v) j++;
+    const avg = (i+j)/2 + 1;
+    for (let k=i;k<=j;k++) ranks[order[k].i] = avg;
+    i = j+1;
+  }
+  return ranks;
+}
+function clearIn(...ids){ ids.forEach(id => { const el = $(id); if (el) el.innerHTML=''; }); }
+
+/* =========================================================
+   CORE STATISTICS
+   ========================================================= */
+function analyzeGrouped(rows){
+  const sorted = rows.slice().sort((a,b)=>a.lo-b.lo);
+  let N=0, sumFX=0, sumFX2=0;
+  sorted.forEach(r=>{
+    r.X = (r.lo + r.hi)/2;
+    r.fX = r.X * r.f;
+    r.fX2 = r.X * r.X * r.f;
+    N += r.f; sumFX += r.fX; sumFX2 += r.fX2;
+  });
+  let c=0; sorted.forEach(r=>{ c += r.f; r.cf = c; });
+  const mean = sumFX/N;
+  const variance = sumFX2/N - mean*mean;
+  const sd = Math.sqrt(Math.max(variance,0));
+  const modeRow = sorted.reduce((a,b)=> b.f > a.f ? b : a);
+  const half = N/2;
+  const mIdx = sorted.findIndex(r => r.cf >= half);
+  const mRow = sorted[mIdx];
+  const cfBelow = mIdx > 0 ? sorted[mIdx-1].cf : 0;
+  const i = mRow.hi - mRow.lo + 1;
+  const ell = mRow.lo - 0.5;
+  const median = ell + (i/mRow.f)*(half - cfBelow);
+  return {sorted, N, sumFX, sumFX2, mean, variance, sd,
+          mode: modeRow.X, modeRow, median, mRow, cfBelow, i, ell, half};
+}
+function pearsonCalc(X,Y){
+  const n = X.length;
+  const mx = X.reduce((a,b)=>a+b,0)/n;
+  const my = Y.reduce((a,b)=>a+b,0)/n;
+  let sxx=0, syy=0, sxy=0;
+  for (let i=0;i<n;i++){
+    const x=X[i]-mx, y=Y[i]-my;
+    sxx+=x*x; syy+=y*y; sxy+=x*y;
+  }
+  return {r: sxy/Math.sqrt(sxx*syy), mx, my, sxx, syy, sxy, n};
+}
+function spearmanCalc(X,Y){
+  const n = X.length;
+  const R1 = rankDesc(X), R2 = rankDesc(Y);
+  let sumD2 = 0;
+  for (let i=0;i<n;i++) sumD2 += (R1[i]-R2[i])**2;
+  return {rs: 1 - (6*sumD2)/(n*(n*n-1)), R1, R2, sumD2, n};
+}
+function phiCalc(a,b,c,d){
+  const k=a+b, L=c+d, M=a+c, Nn=b+d;
+  return {phi:(a*d - b*c)/Math.sqrt(k*L*M*Nn), k, L, M, N:Nn};
+}
+
+/* =========================================================
+   BUILDERS (return {html, answers})
+   ========================================================= */
+function buildMMM(rows){
+  const a = analyzeGrouped(rows);
+  const desc = a.sorted.slice().reverse();
+  let h = '<h3>Step 1 · Working table</h3>';
+  h += table(['Class','Midpoint X','f','fX'],
+             desc.map(r => [r.lo+'-'+r.hi, clean(r.X), r.f, clean(r.fX)]));
+  h += '<div class="step">N = Σf = '+a.N+'\nΣfX = '+clean(a.sumFX)+'</div>';
+
+  h += '<h3>Step 2 · Mean</h3><div class="step">X̄ = ΣfX ÷ N = '+
+       clean(a.sumFX)+' ÷ '+a.N+' = '+num(a.mean)+'</div>';
+  h += '<div class="answer">Mean = '+num(a.mean)+'</div>';
+
+  h += '<h3>Step 3 · Mode</h3><div class="step">Highest f = '+a.modeRow.f+
+       ' (class '+a.modeRow.lo+'-'+a.modeRow.hi+')\nMode = midpoint = '+clean(a.mode)+'</div>';
+  h += '<div class="answer">Mode = '+clean(a.mode)+'</div>';
+
+  h += '<h3>Step 4 · Median</h3>';
+  h += table(['Class','f','cf'], desc.map(r => [r.lo+'-'+r.hi, r.f, r.cf]));
+  h += '<div class="step">0.5N = '+clean(a.half)+
+       '\nMedian class = '+a.mRow.lo+'-'+a.mRow.hi+
+       '\nExact lower limit = '+a.ell+
+       '\ni = '+a.i+'   f = '+a.mRow.f+'   cf (below) = '+a.cfBelow+
+       '\n\nMedian = '+a.ell+' + ('+a.i+'/'+a.mRow.f+') × ('+clean(a.half)+
+       ' − '+a.cfBelow+') = '+num(a.median)+'</div>';
+  h += '<div class="answer">Median = '+num(a.median)+'</div>';
+
+  return {html:h, answers:{Mean:a.mean, Mode:a.mode, Median:a.median}};
+}
+
+function buildCentiles(rows, cents){
+  const a = analyzeGrouped(rows);
+  const answers = {};
+  let h = '<div class="centile-table-title">CUMULATIVE FREQUENCY</div>';
+  h += '<div class="tablewrap"><table class="tbl"><thead><tr>';
+  h += '<th>CLASS</th><th>F</th><th>CF</th></tr></thead><tbody>';
+  a.sorted.slice().reverse().forEach(r => {
+    h += `<tr><td>${r.lo}-${r.hi}</td><td>${r.f}</td><td>${r.cf}</td></tr>`;
+  });
+  h += '</tbody></table></div>';
+  h += `<div class="n-tag">N = ${a.N}</div>`;
+
+  cents.forEach(p => {
+    const target = (p/100)*a.N;
+    const idx = a.sorted.findIndex(r => r.cf >= target);
+    const row = a.sorted[idx];
+    const cfBelow = idx>0 ? a.sorted[idx-1].cf : 0;
+    const i = row.hi - row.lo + 1;
+    const ell = row.lo - 0.5;
+    const val = ell + (i/row.f)*(target - cfBelow);
+    answers['C'+p] = val;
+
+    h += `<div class="centile-heading">C<sub>${p}</sub></div>`;
+    h += `<div class="centile-step">`;
+    h += `,${String(p).padStart(2,'0')}N = (${p}/100) × ${a.N} = ${clean(target)}\n`;
+    h += `Class = ${row.lo}-${row.hi}   ell = ${ell}   i = ${i}   f = ${row.f}   cf = ${cfBelow}\n`;
+    h += `C${p} = ${ell} + (${i}/${row.f}) × (${clean(target)} - ${cfBelow}) = ${num(val)}`;
+    h += `</div>`;
+    h += `<div class="centile-answer">C<sub>${p}</sub> = ${num(val)}</div>`;
+  });
+
+  return {html:h, answers};
+}
+
+/* ---- UPDATED: Quartiles with Quartile Deviation ---- */
+function buildQuartiles(rows, qs){
+  const a = analyzeGrouped(rows);
+  const answers = {};
+  let h = '<div class="centile-table-title">CUMULATIVE FREQUENCY</div>';
+  h += '<div class="tablewrap"><table class="tbl"><thead><tr>';
+  h += '<th>CLASS</th><th>F</th><th>CF</th></tr></thead><tbody>';
+  a.sorted.slice().reverse().forEach(r => {
+    h += `<tr><td>${r.lo}-${r.hi}</td><td>${r.f}</td><td>${r.cf}</td></tr>`;
+  });
+  h += '</tbody></table></div>';
+  h += `<div class="n-tag">N = ${a.N}</div>`;
+
+  let q1 = null, q3 = null;
+
+  qs.forEach(k => {
+    const target = (k * a.N) / 4;
+    const idx = a.sorted.findIndex(r => r.cf >= target);
+    const row = a.sorted[idx];
+    const cfBelow = idx>0 ? a.sorted[idx-1].cf : 0;
+    const i = row.hi - row.lo + 1;
+    const ell = row.lo - 0.5;
+    const val = ell + (i/row.f)*(target - cfBelow);
+    answers['Q'+k] = val;
+
+    if (k === 1) q1 = val;
+    if (k === 3) q3 = val;
+
+    h += `<div class="centile-heading">Q<sub>${k}</sub></div>`;
+    h += `<div class="centile-step">`;
+    h += `${k}N/4 = (${k} × ${a.N})/4 = ${clean(target)}\n`;
+    h += `Class = ${row.lo}-${row.hi}   ell = ${ell}   i = ${i}   f = ${row.f}   cf = ${cfBelow}\n`;
+    h += `Q${k} = ${ell} + (${i}/${row.f}) × (${clean(target)} − ${cfBelow}) = ${num(val)}`;
+    h += `</div>`;
+    h += `<div class="centile-answer">Q<sub>${k}</sub> = ${num(val)}</div>`;
+  });
+
+  // Quartile Deviation (only if both Q1 and Q3 are computed)
+  if (q1 !== null && q3 !== null) {
+    const qDev = (q3 - q1) / 2;
+    answers['Q (Quartile Deviation)'] = qDev;
+    h += `<div class="centile-heading">Q (Quartile Deviation)</div>`;
+    h += `<div class="centile-step">`;
+    h += `Q = (Q3 − Q1) / 2\n`;
+    h += `  = (${num(q3)} − ${num(q1)}) / 2\n`;
+    h += `  = ${num(q3 - q1)} / 2\n`;
+    h += `  = ${num(qDev)}`;
+    h += `</div>`;
+    h += `<div class="centile-answer">Q = ${num(qDev)}</div>`;
+  }
+
+  return {html:h, answers};
+}
+
+function buildSD(rows, scores){
+  const a = analyzeGrouped(rows);
+  const desc = a.sorted.slice().reverse();
+  let h = '<h3>(a) Standard deviation</h3>';
+  h += table(['Class','Midpoint X','f','fX','fX²'],
+             desc.map(r => [r.lo+'-'+r.hi, clean(r.X), r.f, clean(r.fX), clean(r.fX2)]));
+  h += '<div class="step">N = '+a.N+'\nΣfX = '+clean(a.sumFX)+'\nΣfX² = '+clean(a.sumFX2)+
+       '\n\nX̄ = '+clean(a.sumFX)+'/'+a.N+' = '+num(a.mean)+
+       '\nS² = ('+clean(a.sumFX2)+'/'+a.N+') − ('+num(a.mean)+')² = '+num(a.variance)+
+       '\nS = √'+num(a.variance)+' = '+num(a.sd)+'</div>';
+  h += '<div class="answer">S = '+num(a.sd)+'<span>Variance = '+num(a.variance)+'</span></div>';
+  const answers = {S:a.sd};
+  if (scores.length){
+    h += '<h3>(b) z‑scores</h3>';
+    scores.forEach(x => {
+      const z = (x - a.mean)/a.sd;
+      answers['z of '+x] = z;
+      h += '<div class="step">z of '+x+' = ('+x+' − '+num(a.mean)+') / '+num(a.sd)+
+           ' = '+num(z)+'</div>';
+      h += '<div class="answer">z<sub>'+x+'</sub> = '+num(z)+'</div>';
+    });
+  }
+  return {html:h, answers};
+}
+
+function buildPearson(X, Y){
+  const p = pearsonCalc(X, Y);
+  const rows = [];
+  for (let i=0;i<p.n;i++){
+    const x = X[i]-p.mx, y = Y[i]-p.my;
+    rows.push([X[i], Y[i], num(x), num(y), num(x*x), num(y*y), num(x*y)]);
+  }
+  let h = '<h3>Deviation table</h3>';
+  h += table(['X','Y','x','y','x²','y²','xy'], rows);
+  h += '<div class="step">X̄ = '+num(p.mx)+'   Ȳ = '+num(p.my)+
+       '\nΣx² = '+num(p.sxx)+'   Σy² = '+num(p.syy)+'   Σxy = '+num(p.sxy)+
+       '\n\nr = '+num(p.sxy)+' / √('+num(p.sxx)+' × '+num(p.syy)+') = '+num(p.r)+'</div>';
+  h += '<div class="answer">r = '+num(p.r)+'</div>';
+  return {html:h, answers:{r:p.r}};
+}
+
+function buildSpearman(X, Y){
+  const s = spearmanCalc(X, Y);
+  const rows = [];
+  for (let i=0;i<s.n;i++){
+    const d = s.R1[i]-s.R2[i];
+    rows.push([X[i], Y[i], clean(s.R1[i]), clean(s.R2[i]), num(d), num(d*d)]);
+  }
+  let h = '<h3>Rank table</h3>';
+  h += table(['X','Y','R₁','R₂','D','D²'], rows);
+  h += '<div class="step">ΣD² = '+num(s.sumD2)+'   N = '+s.n+
+       '\nRs = 1 − (6 × '+num(s.sumD2)+') / ['+s.n+'('+s.n+'² − 1)] = '+num(s.rs)+'</div>';
+  h += '<div class="answer">Rs = '+num(s.rs)+'</div>';
+  return {html:h, answers:{Rs:s.rs}};
+}
+
+function buildPhi(a,b,c,d){
+  const r = phiCalc(a,b,c,d);
+  let h = '<h3>Contingency table</h3>';
+  h += table(['','Y Passed','Y Failed','Total'],
+             [['X Passed',a,b,r.k],['X Failed',c,d,r.L],['Total',r.M,r.N,r.k+r.L]]);
+  h += '<div class="step">k=a+b='+r.k+'   L=c+d='+r.L+'   M=a+c='+r.M+'   N=b+d='+r.N+
+       '\nΦ = (ad − bc) / √(k·L·M·N)'+
+       '\n  = ('+num(a*d)+' − '+num(b*c)+') / √'+clean(r.k*r.L*r.M*r.N)+
+       '\n  = '+num(r.phi)+'</div>';
+  h += '<div class="answer">Φ = '+num(r.phi)+'</div>';
+  return {html:h, answers:{'Φ':r.phi}};
+}
+
+/* =========================================================
+   TABLE INPUT BUILDERS
+   ========================================================= */
+function groupedTableHTML(idPrefix){
+  return `
+    <table class="input-tbl">
+      <thead>
+        <tr>
+          <th style="width:32%;">Lower Limit</th>
+          <th style="width:32%;">Upper Limit</th>
+          <th style="width:26%;">Frequency (f)</th>
+          <th style="width:40px;"></th>
+        </tr>
+      </thead>
+      <tbody id="${idPrefix}-body"></tbody>
+    </table>
+    <button type="button" class="add-row" onclick="addGroupedRowTo('${idPrefix}')">+ Add Row</button>
+  `;
+}
+function addGroupedRowTo(idPrefix, lo='', hi='', f=''){
+  const tbody = $(idPrefix + '-body');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="in-lo" type="number" step="any" value="${lo}" placeholder="65"></td>
+    <td><input class="in-hi" type="number" step="any" value="${hi}" placeholder="69"></td>
+    <td><input class="in-f"  type="number" step="any" value="${f}"  placeholder="1"></td>
+    <td class="cell-del" onclick="this.parentElement.remove()">✕</td>`;
+  tbody.appendChild(tr);
+}
+function readGroupedRows(idPrefix){
+  const rows = [];
+  document.querySelectorAll('#'+idPrefix+'-body tr').forEach(tr => {
+    const lo = parseFloat(tr.querySelector('.in-lo').value);
+    const hi = parseFloat(tr.querySelector('.in-hi').value);
+    const f  = parseFloat(tr.querySelector('.in-f').value);
+    if (Number.isFinite(lo) && Number.isFinite(hi) && Number.isFinite(f) && f > 0){
+      rows.push({lo, hi, f});
+    }
+  });
+  return rows;
+}
+function fillGroupedTable(idPrefix, rows){
+  const tbody = $(idPrefix + '-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  rows.forEach(r => addGroupedRowTo(idPrefix, r.lo, r.hi, r.f));
+}
+
+function pairedTableHTML(idPrefix){
+  return `
+    <table class="input-tbl">
+      <thead>
+        <tr>
+          <th style="width:45%;">X</th>
+          <th style="width:45%;">Y</th>
+          <th style="width:40px;"></th>
+        </tr>
+      </thead>
+      <tbody id="${idPrefix}-body"></tbody>
+    </table>
+    <button type="button" class="add-row" onclick="addPairedRowTo('${idPrefix}')">+ Add Row</button>
+  `;
+}
+function addPairedRowTo(idPrefix, x='', y=''){
+  const tbody = $(idPrefix + '-body');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="in-x" type="number" step="any" value="${x}" placeholder="0"></td>
+    <td><input class="in-y" type="number" step="any" value="${y}" placeholder="0"></td>
+    <td class="cell-del" onclick="this.parentElement.remove()">✕</td>`;
+  tbody.appendChild(tr);
+}
+function readPairedRows(idPrefix){
+  const X = [], Y = [];
+  document.querySelectorAll('#'+idPrefix+'-body tr').forEach(tr => {
+    const x = parseFloat(tr.querySelector('.in-x').value);
+    const y = parseFloat(tr.querySelector('.in-y').value);
+    if (Number.isFinite(x) && Number.isFinite(y)) { X.push(x); Y.push(y); }
+  });
+  return {X, Y};
+}
+function fillPairedTable(idPrefix, X, Y){
+  const tbody = $(idPrefix + '-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const n = Math.max(X.length, Y.length);
+  for (let i=0;i<n;i++) addPairedRowTo(idPrefix, X[i] ?? '', Y[i] ?? '');
+}
+
+/* =========================================================
+   STANDALONE TAB INITIALIZATION
+   ========================================================= */
+// Example data matching the user's handwritten notes
+const EXAMPLE_ROWS_QUART = [
+  {lo:42, hi:44, f:1},{lo:39, hi:41, f:0},{lo:36, hi:38, f:2},
+  {lo:33, hi:35, f:5},{lo:30, hi:32, f:4},{lo:27, hi:29, f:2},
+  {lo:24, hi:26, f:2},{lo:21, hi:23, f:1},{lo:18, hi:20, f:2},
+  {lo:15, hi:17, f:1}
+];
+const EXAMPLE_ROWS_AVG = [
+  {lo:65, hi:69, f:1},{lo:60, hi:64, f:2},{lo:55, hi:59, f:1},
+  {lo:50, hi:54, f:3},{lo:45, hi:49, f:4},{lo:40, hi:44, f:6},
+  {lo:35, hi:39, f:5},{lo:30, hi:34, f:2},{lo:25, hi:29, f:3},
+  {lo:20, hi:24, f:2},{lo:15, hi:19, f:1}
+];
+const EXAMPLE_ROWS_CENT = [
+  {lo:45, hi:47, f:1},{lo:42, hi:44, f:2},{lo:39, hi:41, f:4},
+  {lo:36, hi:38, f:7},{lo:33, hi:35, f:8},{lo:30, hi:32, f:10},
+  {lo:27, hi:29, f:6},{lo:24, hi:26, f:5},{lo:21, hi:23, f:3},
+  {lo:18, hi:20, f:3},{lo:15, hi:17, f:1}
+];
+const EXAMPLE_ROWS_SD = [
+  {lo:55, hi:59, f:1},{lo:50, hi:54, f:2},{lo:45, hi:49, f:3},
+  {lo:40, hi:44, f:3},{lo:35, hi:39, f:6},{lo:30, hi:34, f:8},
+  {lo:25, hi:29, f:4},{lo:20, hi:24, f:2},{lo:15, hi:19, f:1}
+];
+
+function initStandaloneTabs(){
+  $('avg-input').innerHTML = groupedTableHTML('avg-tbl');
+  fillGroupedTable('avg-tbl', EXAMPLE_ROWS_AVG);
+
+  $('cent-input').innerHTML = groupedTableHTML('cent-tbl');
+  fillGroupedTable('cent-tbl', EXAMPLE_ROWS_CENT);
+
+  $('quart-input').innerHTML = groupedTableHTML('quart-tbl');
+  fillGroupedTable('quart-tbl', EXAMPLE_ROWS_QUART);
+
+  $('sd-input').innerHTML = groupedTableHTML('sd-tbl');
+  fillGroupedTable('sd-tbl', EXAMPLE_ROWS_SD);
+
+  $('pear-input').innerHTML = pairedTableHTML('pear-tbl');
+  fillPairedTable('pear-tbl', [43,48,56,61,67,70], [128,120,135,143,141,152]);
+
+  $('spear-input').innerHTML = pairedTableHTML('spear-tbl');
+  fillPairedTable('spear-tbl', [42,28,46,28,36,47,23,34], [51,53,55,35,51,44,31,26]);
+}
+
+function resetInput(kind){
+  if (kind === 'avg'){ fillGroupedTable('avg-tbl', EXAMPLE_ROWS_AVG); clearIn('avg-out'); }
+  if (kind === 'cent'){ fillGroupedTable('cent-tbl', EXAMPLE_ROWS_CENT); clearIn('cent-out'); }
+  if (kind === 'quart'){ fillGroupedTable('quart-tbl', EXAMPLE_ROWS_QUART); clearIn('quart-out'); }
+  if (kind === 'sd'){ fillGroupedTable('sd-tbl', EXAMPLE_ROWS_SD); $('sd-scores').value = '38'; clearIn('sd-out'); }
+  if (kind === 'pear'){ fillPairedTable('pear-tbl', [43,48,56,61,67,70], [128,120,135,143,141,152]); clearIn('pear-out'); }
+  if (kind === 'spear'){ fillPairedTable('spear-tbl', [42,28,46,28,36,47,23,34], [51,53,55,35,51,44,31,26]); clearIn('spear-out'); }
+}
+
+/* =========================================================
+   STANDALONE ACTIONS
+   ========================================================= */
+function runAverages(){
+  const out = $('avg-out');
+  const rows = readGroupedRows('avg-tbl');
+  if (!rows.length){ out.innerHTML = '<div class="warn">Enter at least one valid row.</div>'; return; }
+  out.innerHTML = buildMMM(rows).html;
+}
+function runCentiles(){
+  const out = $('cent-out');
+  const rows = readGroupedRows('cent-tbl');
+  if (!rows.length){ out.innerHTML = '<div class="warn">Enter at least one valid row.</div>'; return; }
+  const cents = parseList($('cent-list').value).filter(p=>p>0 && p<100);
+  if (!cents.length){ out.innerHTML = '<div class="warn">Enter centile values, e.g. 40, 85.</div>'; return; }
+  out.innerHTML = buildCentiles(rows, cents).html;
+}
+function runQuartiles(){
+  const out = $('quart-out');
+  const rows = readGroupedRows('quart-tbl');
+  if (!rows.length){ out.innerHTML = '<div class="warn">Enter at least one valid row.</div>'; return; }
+  const qs = [];
+  document.querySelectorAll('#p-quart .q-check').forEach(cb => {
+    if (cb.checked) qs.push(parseInt(cb.value));
+  });
+  if (!qs.length){ out.innerHTML = '<div class="warn">Select at least one quartile.</div>'; return; }
+  out.innerHTML = buildQuartiles(rows, qs).html;
+}
+function runSD(){
+  const out = $('sd-out');
+  const rows = readGroupedRows('sd-tbl');
+  if (!rows.length){ out.innerHTML = '<div class="warn">Enter at least one valid row.</div>'; return; }
+  const scores = parseList($('sd-scores').value);
+  out.innerHTML = buildSD(rows, scores).html;
+}
+function runPearson(){
+  const out = $('pear-out');
+  const {X, Y} = readPairedRows('pear-tbl');
+  if (!X.length || X.length !== Y.length){
+    out.innerHTML = '<div class="warn">X and Y must have the same length.</div>'; return;
+  }
+  out.innerHTML = buildPearson(X, Y).html;
+}
+function runSpearman(){
+  const out = $('spear-out');
+  const {X, Y} = readPairedRows('spear-tbl');
+  if (!X.length || X.length !== Y.length){
+    out.innerHTML = '<div class="warn">X and Y must have the same length.</div>'; return;
+  }
+  out.innerHTML = buildSpearman(X, Y).html;
+}
+function runPhi(){
+  const out = $('phi-out');
+  const a=parseFloat($('phi-a').value)||0, b=parseFloat($('phi-b').value)||0;
+  const c=parseFloat($('phi-c').value)||0, d=parseFloat($('phi-d').value)||0;
+  if (a+b+c+d === 0){ out.innerHTML = '<div class="warn">Enter cell frequencies.</div>'; return; }
+  out.innerHTML = buildPhi(a,b,c,d).html;
+}
+
+/* =========================================================
+   TAB SWITCHING
+   ========================================================= */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+
+/* =========================================================
+   PRACTICE MODE
+   ========================================================= */
+let currentQ = null;
+let wbAnswers = null;
+let wbOriginalData = null;
+let score = {att:0, ok:0, bad:0};
+
+/* ---------- GENERATORS (built-in) ---------- */
+function makeGrouped(diff, peakFactor=0.5){
+  const width = 5, start = 15;
+  const nClasses = diff === 'easy' ? 8 : diff === 'hard' ? 11 : 9;
+  const peak = Math.floor(nClasses * peakFactor);
+  const rows = [];
+  for (let i=0;i<nClasses;i++){
+    const lo = start + i*width, hi = lo + width - 1;
+    const base = 7 - Math.abs(i - peak);
+    const f = Math.max(1, Math.round(base + (Math.random()*2 - 1)));
+    rows.push({lo, hi, f});
+  }
+  return rows;
+}
+function rowsToDisplay(rows){
+  return rows.slice().reverse().map(r => `${r.lo}-${r.hi}   f = ${r.f}`).join('\n');
+}
+
+const GEN = {
+  mmm(diff){
+    const rows = makeGrouped(diff);
+    const calc = buildMMM(rows);
+    return {
+      topic:'mmm',
+      question:'Compute the mean, mode and median for the grouped frequency distribution below.',
+      data: rowsToDisplay(rows),
+      wbData: {kind:'grouped', rows, extraType:null},
+      answers: calc.answers,
+      solution: calc.html
+    };
+  },
+  centile(diff){
+    const rows = makeGrouped(diff, 0.5);
+    const cents = diff === 'easy' ? [25, 75]
+                : diff === 'hard' ? [15, 40, 60, 85]
+                : [40, 85];
+    const calc = buildCentiles(rows, cents);
+    return {
+      topic:'centile',
+      question:`Compute the centile(s) ${cents.map(c=>'C'+c).join(', ')} for the distribution below.`,
+      data: rowsToDisplay(rows),
+      wbData: {kind:'grouped', rows, extraType:'centile', extraValue:cents.join(', ')},
+      answers: calc.answers,
+      solution: calc.html
+    };
+  },
+  quartile(diff){
+    const rows = makeGrouped(diff, 0.5);
+    const qs = diff === 'easy' ? [1, 3] : [1, 3]; // Q1 and Q3 always, Q2 optional
+    const calc = buildQuartiles(rows, qs);
+    return {
+      topic:'quartile',
+      question:`Compute the quartile(s) ${qs.map(q=>'Q'+q).join(', ')} and the quartile deviation for the distribution below.`,
+      data: rowsToDisplay(rows),
+      wbData: {kind:'grouped', rows, extraType:'quartile', extraValue:qs},
+      answers: calc.answers,
+      solution: calc.html
+    };
+  },
+  sd(diff){
+    const rows = makeGrouped(diff, 0.5);
+    const a = analyzeGrouped(rows);
+    const rawX = Math.round(a.mean + (Math.random()*2-1) * a.sd);
+    const calc = buildSD(rows, [rawX]);
+    return {
+      topic:'sd',
+      question:`Compute the standard deviation and the z‑score equivalent of the score ${rawX}.`,
+      data: rowsToDisplay(rows),
+      wbData: {kind:'grouped', rows, extraType:'score', extraValue:String(rawX)},
+      answers: calc.answers,
+      solution: calc.html
+    };
+  },
+  pearson(diff){
+    const n = diff === 'easy' ? 5 : diff === 'hard' ? 8 : 6;
+    const slope = 0.6 + Math.random()*0.8;
+    const intercept = 40 + Math.random()*40;
+    const X = [], Y = [];
+    for (let i=0;i<n;i++){
+      const x = Math.round(30 + Math.random()*50);
+      X.push(x);
+      Y.push(Math.round(slope*x + intercept + (Math.random()*20 - 10)));
+    }
+    const calc = buildPearson(X, Y);
+    return {
+      topic:'pearson',
+      question:'Compute the Pearson correlation coefficient r for the paired data below.',
+      data: 'X: ' + X.join(', ') + '\nY: ' + Y.join(', '),
+      wbData: {kind:'paired', X, Y},
+      answers: calc.answers,
+      solution: calc.html
+    };
+  },
+  spearman(diff){
+    const n = diff === 'easy' ? 6 : diff === 'hard' ? 10 : 8;
+    const X = [], Y = [];
+    for (let i=0;i<n;i++){
+      X.push(20 + Math.round(Math.random()*30));
+      Y.push(20 + Math.round(Math.random()*30));
+    }
+    const calc = buildSpearman(X, Y);
+    return {
+      topic:'spearman',
+      question:'Compute the Spearman rank correlation coefficient Rs for the data below.',
+      data: 'X: ' + X.join(', ') + '\nY: ' + Y.join(', '),
+      wbData: {kind:'paired', X, Y},
+      answers: calc.answers,
+      solution: calc.html
+    };
+  },
+  phi(diff){
+    const range = diff === 'easy' ? 40 : diff === 'hard' ? 100 : 70;
+    const a = 20 + Math.round(Math.random()*range);
+    const b = 20 + Math.round(Math.random()*range);
+    const c = 20 + Math.round(Math.random()*range);
+    const d = 20 + Math.round(Math.random()*range);
+    const calc = buildPhi(a,b,c,d);
+    return {
+      topic:'phi',
+      question:'Compute the Phi coefficient for the 2 × 2 contingency table below.',
+      data: `              Y Passed   Y Failed\nX Passed      ${a}          ${b}\nX Failed      ${c}          ${d}`,
+      wbData: {kind:'four', a, b, c, d},
+      answers: calc.answers,
+      solution: calc.html
+    };
+  }
+};
+
+function topicLabel(t){
+  return {mmm:'mean, mode and median',
+          centile:'centile (percentile)',
+          quartile:'quartile (Q1, Q3) and quartile deviation',
+          sd:'standard deviation and z-score',
+          pearson:'Pearson correlation',
+          spearman:'Spearman rank correlation',
+          phi:'Phi coefficient'}[t] || t;
+}
+
+/* ---------- Real AI ---------- */
+async function tryRealAI(topic, diff){
+  const key = localStorage.getItem('ps_api_key');
+  if (!key) return null;
+  const model = localStorage.getItem('ps_api_model') || 'gpt-4o-mini';
+  const prompt = `You are a statistics tutor. Generate one ${diff}-difficulty practice question on "${topicLabel(topic)}".
+Return ONLY JSON with keys:
+- "question": string
+- "data": plain text data with line breaks
+- "answers": object mapping each required answer name to numeric value
+- "solution": HTML string with <div class="step">...</div> and <div class="answer">...</div>
+Rules: realistic numbers; for grouped data use class intervals like "40-44 6"; 2 decimals.`;
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body: JSON.stringify({
+      model,
+      messages:[{role:'user', content:prompt}],
+      response_format:{type:'json_object'}
+    })
+  });
+  if (!res.ok) throw new Error('API '+res.status);
+  const j = await res.json();
+  const obj = JSON.parse(j.choices[0].message.content);
+
+  let wbData = null;
+  if (topic === 'mmm' || topic === 'centile' || topic === 'quartile' || topic === 'sd'){
+    const rows = [];
+    (obj.data||'').split('\n').forEach(line => {
+      const m = line.match(/(\d+)\s*[-–]\s*(\d+)[^\d]+(\d+)/);
+      if (m) rows.push({lo:+m[1], hi:+m[2], f:+m[3]});
+    });
+    let extraType = null, extraValue = '';
+    if (topic === 'centile'){ extraType = 'centile'; extraValue = '40, 85'; }
+    if (topic === 'quartile'){ extraType = 'quartile'; extraValue = [1,3]; }
+    if (topic === 'sd'){ extraType = 'score'; extraValue = ''; }
+    wbData = {kind:'grouped', rows, extraType, extraValue};
+  } else if (topic === 'pearson' || topic === 'spearman'){
+    const X = (obj.data.match(/X[:\s]+([0-9,\s\.\-]+)/i)||[])[1];
+    const Y = (obj.data.match(/Y[:\s]+([0-9,\s\.\-]+)/i)||[])[1];
+    wbData = {kind:'paired', X: X?parseList(X):[], Y: Y?parseList(Y):[]};
+  } else if (topic === 'phi'){
+    wbData = {kind:'four', a:0,b:0,c:0,d:0};
+  }
+
+  return {
+    topic,
+    question: obj.question,
+    data: obj.data,
+    wbData,
+    answers: obj.answers,
+    solution: obj.solution,
+    source: 'ai'
+  };
+}
+
+/* ---------- Generate ---------- */
+async function generateQuestion(){
+  const topic = $('gen-topic').value;
+  const diff  = $('gen-diff').value;
+  const btn = $('gen-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  let q = null;
+  if (localStorage.getItem('ps_api_key')){
+    try { q = await tryRealAI(topic, diff); }
+    catch(e){ console.warn('AI failed:', e); q = null; }
+  }
+  if (!q){ q = GEN[topic](diff); q.source = 'local'; }
+
+  currentQ = q;
+  wbOriginalData = JSON.parse(JSON.stringify(q.wbData));
+  renderQuestion(q);
+  btn.disabled = false;
+  btn.textContent = '✨ Generate Question';
+}
+
+function renderQuestion(q){
+  $('q-empty').style.display = 'none';
+  $('q-area').style.display = 'block';
+  $('q-topic-tag').textContent = topicLabel(q.topic);
+  $('q-text').textContent = q.question;
+  $('q-data').textContent = q.data;
+  $('q-source').textContent = q.source === 'ai' ? '🤖 Real AI' : '🎲 Built-in generator';
+  $('q-source').className = 'aibadge' + (q.source === 'ai' ? '' : ' local');
+
+  buildWorkbench(q.wbData);
+
+  const fields = $('ans-fields');
+  fields.innerHTML = '';
+  Object.keys(q.answers).forEach(key => {
+    const wrap = document.createElement('div');
+    wrap.className = 'fld-wrap';
+    wrap.innerHTML = `<label>
+        <span>${key}</span>
+        <button class="mini" type="button" data-fill="${key}">↺ Fill from Workbench</button>
+      </label>
+      <input type="number" step="any" data-ans="${key}" placeholder="Your value">`;
+    fields.appendChild(wrap);
+  });
+  fields.querySelectorAll('.mini').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const k = btn.dataset.fill;
+      if (wbAnswers && k in wbAnswers){
+        const inp = document.querySelector(`#ans-fields input[data-ans="${CSS.escape(k)}"]`);
+        if (inp) inp.value = Number(wbAnswers[k]).toFixed(2);
+      } else {
+        alert('Please click "🧮 Compute" in the Workbench first.');
+      }
+    });
+  });
+
+  $('feedback').className = 'feedback';
+  $('feedback').innerHTML = '';
+  $('solution').innerHTML = '';
+  wbAnswers = null;
+}
+
+/* =========================================================
+   WORKBENCH (with table inputs)
+   ========================================================= */
+function buildWorkbench(wb){
+  const box = $('wb-inputs');
+  if (!wb){ box.innerHTML = '<div class="warn">No workbench data for this question.</div>'; return; }
+
+  let h = '';
+
+  if (wb.kind === 'grouped'){
+    h += `<div class="wb-label">Class Intervals &amp; Frequency</div>`;
+    h += groupedTableHTML('wb-grouped');
+    setTimeout(() => fillGroupedTable('wb-grouped', wb.rows || []), 0);
+
+    if (wb.extraType === 'centile'){
+      h += `<div class="wb-extra">
+        <label class="fld">Centiles to compute (comma separated)</label>
+        <input type="text" id="wb-extra" value="${wb.extraValue || '40, 85'}">
+      </div>`;
+    } else if (wb.extraType === 'quartile'){
+      const sel = Array.isArray(wb.extraValue) ? wb.extraValue : [1,3];
+      h += `<div class="wb-extra">
+        <label class="fld">Quartiles to compute</label>
+        <div class="quartile-checks">
+          <label><input type="checkbox" class="wb-q-check" value="1" ${sel.includes(1)?'checked':''}> Q₁</label>
+          <label><input type="checkbox" class="wb-q-check" value="2" ${sel.includes(2)?'checked':''}> Q₂</label>
+          <label><input type="checkbox" class="wb-q-check" value="3" ${sel.includes(3)?'checked':''}> Q₃</label>
+        </div>
+      </div>`;
+    } else if (wb.extraType === 'score'){
+      h += `<div class="wb-extra">
+        <label class="fld">Score(s) to convert to z (comma separated)</label>
+        <input type="text" id="wb-extra" value="${wb.extraValue || ''}">
+      </div>`;
+    }
+  }
+  else if (wb.kind === 'paired'){
+    h += `<div class="wb-label">Paired Scores</div>`;
+    h += pairedTableHTML('wb-paired');
+    setTimeout(() => fillPairedTable('wb-paired', wb.X || [], wb.Y || []), 0);
+  }
+  else if (wb.kind === 'four'){
+    h += `<div class="wb-label">Contingency Table</div>
+      <div class="phi-input-matrix">
+        <div class="corner"></div>
+        <div class="hcell">Y — Passed</div>
+        <div class="hcell" style="border-right:none;">Y — Failed</div>
+        <div class="rcell">X — Passed</div>
+        <div class="ccell"><input type="number" id="wb-a" value="${wb.a||0}"></div>
+        <div class="ccell" style="border-right:none;"><input type="number" id="wb-b" value="${wb.b||0}"></div>
+        <div class="rcell" style="border-bottom:none;">X — Failed</div>
+        <div class="ccell" style="border-bottom:none;"><input type="number" id="wb-c" value="${wb.c||0}"></div>
+        <div class="ccell" style="border-bottom:none;border-right:none;"><input type="number" id="wb-d" value="${wb.d||0}"></div>
+      </div>`;
+  }
+
+  box.innerHTML = h;
+  $('wb-result').innerHTML = '';
+  wbAnswers = null;
+}
+
+function wbCompute(){
+  if (!currentQ){ return; }
+  const topic = currentQ.topic;
+  let result = null;
+
+  try {
+    if (topic === 'mmm'){
+      const rows = readGroupedRows('wb-grouped');
+      if (!rows.length) throw new Error('Please enter at least one complete row.');
+      result = buildMMM(rows);
+    }
+    else if (topic === 'centile'){
+      const rows = readGroupedRows('wb-grouped');
+      const cents = parseList($('wb-extra').value).filter(p=>p>0 && p<100);
+      if (!rows.length) throw new Error('Please enter at least one complete row.');
+      if (!cents.length) throw new Error('Enter centile values, e.g. 40, 85.');
+      result = buildCentiles(rows, cents);
+    }
+    else if (topic === 'quartile'){
+      const rows = readGroupedRows('wb-grouped');
+      if (!rows.length) throw new Error('Please enter at least one complete row.');
+      const qs = [];
+      document.querySelectorAll('.wb-q-check').forEach(cb => {
+        if (cb.checked) qs.push(parseInt(cb.value));
+      });
+      if (!qs.length) throw new Error('Select at least one quartile.');
+      result = buildQuartiles(rows, qs);
+    }
+    else if (topic === 'sd'){
+      const rows = readGroupedRows('wb-grouped');
+      const scores = parseList($('wb-extra').value);
+      if (!rows.length) throw new Error('Please enter at least one complete row.');
+      result = buildSD(rows, scores);
+    }
+    else if (topic === 'pearson'){
+      const {X, Y} = readPairedRows('wb-paired');
+      if (!X.length || X.length !== Y.length) throw new Error('X and Y must have the same number of rows.');
+      result = buildPearson(X, Y);
+    }
+    else if (topic === 'spearman'){
+      const {X, Y} = readPairedRows('wb-paired');
+      if (!X.length || X.length !== Y.length) throw new Error('X and Y must have the same number of rows.');
+      result = buildSpearman(X, Y);
+    }
+    else if (topic === 'phi'){
+      const a = parseFloat($('wb-a').value)||0;
+      const b = parseFloat($('wb-b').value)||0;
+      const c = parseFloat($('wb-c').value)||0;
+      const d = parseFloat($('wb-d').value)||0;
+      if (a+b+c+d === 0) throw new Error('Enter the four cell frequencies.');
+      result = buildPhi(a,b,c,d);
+    }
+  } catch(err){
+    $('wb-result').innerHTML = '<div class="warn">⚠ '+err.message+'</div>';
+    wbAnswers = null;
+    return;
+  }
+
+  wbAnswers = result.answers;
+  const note = `<div class="fillnote">✓ Computed! Use the <b>↺ Fill from Workbench</b> button next to each answer field, or type the values manually.</div>`;
+  $('wb-result').innerHTML = '<h3 style="margin-top:0;">Workbench result</h3>' + result.html + note;
+}
+
+function wbReset(){
+  if (!wbOriginalData){ return; }
+  buildWorkbench(wbOriginalData);
+}
+function wbClearResult(){
+  $('wb-result').innerHTML = '';
+  wbAnswers = null;
+}
+function toggleWB(){
+  const b = $('wb-body');
+  b.classList.toggle('hidden');
+  $('wb-toggle').textContent = b.classList.contains('hidden') ? 'Show' : 'Hide';
+}
+
+/* =========================================================
+   CHECK / REVEAL
+   ========================================================= */
+function checkAnswers(){
+  if (!currentQ) return;
+  const inputs = document.querySelectorAll('#ans-fields input');
+  const results = [];
+  let allCorrect = true;
+  inputs.forEach(inp => {
+    const key = inp.dataset.ans;
+    const correct = currentQ.answers[key];
+    const user = parseFloat(inp.value);
+    const tol = Math.max(0.05, Math.abs(correct)*0.01);
+    const ok = Number.isFinite(user) && Math.abs(user - correct) <= tol;
+    if (!ok) allCorrect = false;
+    results.push({key, user, correct, ok});
+  });
+
+  score.att++;
+  if (allCorrect) score.ok++; else score.bad++;
+  updateScore();
+
+  const fb = $('feedback');
+  fb.className = 'feedback show ' + (allCorrect ? 'good' : 'bad');
+  let html = `<div class="fb-title">${allCorrect ? '✓ Correct — well done!' : '✗ Not quite — check the working below'}</div>`;
+  results.forEach(r => {
+    const yourStr = Number.isFinite(r.user) ? r.user : '—';
+    html += `<div class="fb-row">
+      <span class="lbl">${r.key}</span>
+      <span class="${r.ok?'':'you'}">your: ${yourStr}</span>
+      ${r.ok ? '' : `<span class="cor">→ correct: ${num(r.correct)}</span>`}
+    </div>`;
+  });
+  fb.innerHTML = html;
+
+  if (!allCorrect){
+    $('solution').innerHTML = '<h3 style="margin-top:18px;">Step‑by‑step solution</h3>' + currentQ.solution;
+  }
+}
+function revealSolution(){
+  if (!currentQ) return;
+  $('solution').innerHTML = '<h3 style="margin-top:18px;">Step‑by‑step solution</h3>' + currentQ.solution;
+}
+function updateScore(){
+  $('sc-att').textContent = score.att;
+  $('sc-ok').textContent = score.ok;
+  $('sc-bad').textContent = score.bad;
+  $('sc-pct').textContent = score.att ? Math.round(score.ok/score.att*100)+'%' : '—';
+}
+
+/* =========================================================
+   API KEY
+   ========================================================= */
+function saveKey(){
+  const k = $('ai-key').value.trim();
+  const m = $('ai-model').value.trim() || 'gpt-4o-mini';
+  if (!k){ $('key-status').textContent = 'Please enter a key first.'; return; }
+  localStorage.setItem('ps_api_key', k);
+  localStorage.setItem('ps_api_model', m);
+  $('key-status').textContent = '✓ Saved. Questions will now be generated by a real AI.';
+  $('key-status').style.color = 'var(--ok)';
+}
+function clearKey(){
+  localStorage.removeItem('ps_api_key');
+  localStorage.removeItem('ps_api_model');
+  $('ai-key').value = '';
+  $('key-status').textContent = 'Key removed. Using the built-in generator.';
+  $('key-status').style.color = 'var(--muted)';
+}
+(function restoreKey(){
+  const k = localStorage.getItem('ps_api_key');
+  if (k){
+    $('ai-key').value = k;
+    $('ai-model').value = localStorage.getItem('ps_api_model') || 'gpt-4o-mini';
+    $('key-status').textContent = '✓ A key is saved in this browser.';
+    $('key-status').style.color = 'var(--ok)';
+  }
+})();
+
+/* =========================================================
+   INIT
+   ========================================================= */
+(function init(){
+  initStandaloneTabs();
+  runAverages(); runCentiles(); runQuartiles(); runSD();
+  runPearson(); runSpearman(); runPhi();
+})();
+</script>
+</body>
+</html>
